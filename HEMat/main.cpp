@@ -151,19 +151,19 @@ int main() {
                 break;
                 
             case 9:
-                cout << endl << "> Enter dim & #(parallel matrices) & #(iterations): ";
+                cout << endl << "> Enter dim & #(parallel matrices) & #(iterations) (e.g., 8 3 1): ";
                 cin >> dim >> nbatching >> niter;
                 TestHEmatrix::testSIMDAdd(dim, nbatching, niter);
                 break;
                 
             case 10:
-                cout << endl << "> Enter dim & #(parallel matrices) & #(iterations): ";
+                cout << endl << "> Enter dim & #(parallel matrices) & #(iterations) (e.g., 8 3 1): ";
                 cin >> dim >> nbatching >> niter;
                 TestHEmatrix::testSIMDTrans(dim, nbatching, niter);
                 break;
                 
             case 11:
-                cout << endl << "> Enter dim & #(parallel matrices) & #(iterations): ";
+                cout << endl << "> Enter dim & #(parallel matrices) & #(iterations) (e.g., 8 3 1): ";
                 cin >> dim >> nbatching >> niter;
                 TestHEmatrix::testSIMDMult(dim, nbatching, niter);  //! square matrix
                 break;
