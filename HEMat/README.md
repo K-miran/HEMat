@@ -34,7 +34,7 @@ make new
 
 This will build our library "libHEMat.a".  
 
-## Running a source code
+## Running a test source code
 
 The program will run with several secure matrix algorithms (e.g. matrix addition, multiplication, transposition, and rectangular matrix multiplication).  
 For example, you run a test program in the the directory by doing as follows: 
