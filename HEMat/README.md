@@ -8,11 +8,11 @@ HEMat is a software package for performing a secure outsourced matrix computatio
 
 Our library requires a c++ compiler and the following libraries:
 
-a. the GMP (GNU Multi-Precision library, >= 6.1.2), which is available at https://gmplib.org,
+*  GMP (GNU Multi-Precision library, >= 6.1.2), which is available at https://gmplib.org,
 
-b. the NTL library (>=11.0.0), which is available at http://www.shoup.net/ntl/,  (with pThread)
+* NTL library (>=11.0.0), which is available at http://www.shoup.net/ntl/,  (with pThread)
 
-c. the approximate HE library, which is an implementation of the paper "Homomorphic Encryption for Arithmetic of Approximate Numbers" (https://eprint.iacr.org/2016/421.pdf). We refered to the underlying HE library in the "src" folder. You can build the libarary “libheaan.a" by typing "$make all" in the "/src" directory.
+* Approximate HE library, which is an implementation of the paper "Homomorphic Encryption for Arithmetic of Approximate Numbers" (https://eprint.iacr.org/2016/421.pdf). We refered to the underlying HE library in the "src" folder. You can build the libarary “libheaan.a" by typing "$make all" in the "/src" directory.
 
 
 ### Installing HEMat library
