@@ -134,7 +134,7 @@ int main() {
                 cin >> dim1;
                 cin >> dim2;
                 cout << "(" << dim1 << "," << dim2 << ") * (" << dim2 << "," << dim2 << ")" << endl;
-                TestHEmatrix::testRMult(dim1, dim2); //! (d1 * d2) * (d2 * d2)
+                TestHEmatrix::testRMult(dim1, dim2); //! (d2 * d1) * (d1 * d1)
                 break;
                 
             case 7:
@@ -151,19 +151,19 @@ int main() {
                 break;
                 
             case 9:
-                cout << endl << "> Enter dim & #(parallel matrices) & #(iterations) (e.g., 8 3 1): ";
+                cout << endl << "> Enter dim & #(parallel matrices) & #(iterations): ";
                 cin >> dim >> nbatching >> niter;
                 TestHEmatrix::testSIMDAdd(dim, nbatching, niter);
                 break;
                 
             case 10:
-                cout << endl << "> Enter dim & #(parallel matrices) & #(iterations) (e.g., 8 3 1): ";
+                cout << endl << "> Enter dim & #(parallel matrices) & #(iterations): ";
                 cin >> dim >> nbatching >> niter;
                 TestHEmatrix::testSIMDTrans(dim, nbatching, niter);
                 break;
                 
             case 11:
-                cout << endl << "> Enter dim & #(parallel matrices) & #(iterations) (e.g., 8 3 1): ";
+                cout << endl << "> Enter dim & #(parallel matrices) & #(iterations): ";
                 cin >> dim >> nbatching >> niter;
                 TestHEmatrix::testSIMDMult(dim, nbatching, niter);  //! square matrix
                 break;

@@ -79,7 +79,7 @@ void readHEMatpar(HEMatpar& HEmatpar, long nrows, long ncols, long pBits, long c
     }
 }
 
-//!@ Function: encrypt mat[i][j] * 2^p in a single ciphertext
+
 void HEmatrix::encryptRmat(Ciphertext& ctxt, mat_RR& mat, long logp){
     complex<double>* cmsg = new complex<double>[HEmatpar.nslots];
     
@@ -97,7 +97,6 @@ void HEmatrix::encryptRmat(Ciphertext& ctxt, mat_RR& mat, long logp){
     delete[] cmsg;
 }
 
-//!@ Function: decryption an input ciphertext and generate an RR-type matrix cmsg s.t. cmsg[i] = dec(ctxt)/2^p
 void HEmatrix::decryptRmat(mat_RR& mat, Ciphertext& ctxt){
     complex<double>* cmsg = scheme.decrypt(secretKey, ctxt);
     mat.SetDims(HEmatpar.dim, HEmatpar.dim);
@@ -112,8 +111,6 @@ void HEmatrix::decryptRmat(mat_RR& mat, Ciphertext& ctxt){
     delete[] cmsg;
 }
 
-//! Input: "nbatching " number of matrices
-//! Function: encrypt multiple matrices together
 void HEmatrix::encryptParallelRmat(Ciphertext& ctxt, mat_RR*& mat, long logp, long nbatching){
     complex<double>* cmsg = new complex<double>[HEmatpar.nslots];
     double* dtemp = new double[nbatching];
@@ -136,7 +133,6 @@ void HEmatrix::encryptParallelRmat(Ciphertext& ctxt, mat_RR*& mat, long logp, lo
     delete[] dtemp;
 }
 
-//!@ Function: decrypt a ciphertext and generate multiple matrices
 void HEmatrix::decryptParallelRmat(mat_RR*& mat, Ciphertext& ctxt){
     complex<double>* cmsg = scheme.decrypt(secretKey, ctxt);
     mat = new mat_RR[HEmatpar.nbatching];
@@ -154,10 +150,6 @@ void HEmatrix::decryptParallelRmat(mat_RR*& mat, Ciphertext& ctxt){
     delete[] cmsg;
 }
 
-//!@ Input: vals = (vals[0],vals[1],...,vals[d-1])
-//!@ Function: left-rotation by "nrot" positions
-//!@ Output: res = (vals[nrot],vals[nrot+1],...,vals[d-1]), vals[0],vals[1],....,vals[nrot-1])
-
 void HEmatrix::msgleftRotate(complex<double>*& res, complex<double>* vals, long dim, long nrot){
     long nshift = (nrot)%HEmatpar.nslots;
     
@@ -169,11 +161,6 @@ void HEmatrix::msgleftRotate(complex<double>*& res, complex<double>* vals, long 
         res[j] = vals[j - k];
     }
 }
-
-
-//!@ Input: vals = (vals[0],vals[1],...,vals[d-1])
-//!@ Function: right-rotation by "nrot" positions
-//!@ Output: res = (vals[d-nrot],vals[d-nrot+1],...,vals[d-1]), vals[0],vals[1],....,vals[d-nrot-1])  <->  vals[0] = res[nrot]
 
 void HEmatrix::msgrightRotate(complex<double>*& res, complex<double>* vals, long dim, long nrot){
     long nshift = (nrot)%HEmatpar.nslots;
@@ -190,7 +177,6 @@ void HEmatrix::msgrightRotate(complex<double>*& res, complex<double>* vals, long
     }
 }
 
-//!@ Function: left-rotation by "nrot" positions
 void HEmatrix::msgleftRotateAndEqual(complex<double>*& vals, long dim, long nrot){
     complex<double>* res = new complex<double>[dim];
 
@@ -208,8 +194,6 @@ void HEmatrix::msgleftRotateAndEqual(complex<double>*& vals, long dim, long nrot
     }
 }
 
-
-//!@ Function: right-rotation by "nrot" positions
 void HEmatrix::msgrightRotateAndEqual(complex<double>*& vals, long dim, long nrot){
     complex<double>* res = new complex<double>[dim];
     
@@ -285,9 +269,6 @@ void HEmatrix::genTransPoly(ZZX*& transpoly){
     delete[] rvals;
 }
 
-
-//!@ Input: ctxt
-//!@ Output: ret that encrypts the transpose of the corresponding input matrix
 void HEmatrix::transpose(Ciphertext& res, Ciphertext& ctxt, ZZX*& transpoly){
     
     long dimsqrdim = HEmatpar.sqrdim * HEmatpar.dim1;   // (d-1) * sqrt(d)
@@ -384,7 +365,6 @@ void HEmatrix::transpose(Ciphertext& res, Ciphertext& ctxt, ZZX*& transpoly){
     delete[] rtemp;
 }
 
-//! Function: generate the polynomial for parallel transposition
 void HEmatrix::genTransPoly_Parallel(ZZX*& transpoly){
     
     bool btmp;
@@ -436,9 +416,6 @@ void HEmatrix::genTransPoly_Parallel(ZZX*& transpoly){
     delete[] rvals;
 }
 
-
-//!@ Input: ctxt
-//!@ Function: parallel transposition
 void HEmatrix::transpose_Parallel(Ciphertext& res, Ciphertext& ctxt, ZZX*& transpoly){
     long shiftunit = HEmatpar.sqrdim * HEmatpar.dim1 * HEmatpar.nbatching;  // (d-1) * sqrt(d) * l
     long unit  = (HEmatpar.dim1) * HEmatpar.nbatching;
@@ -561,11 +538,6 @@ void HEmatrix::genShiftPoly(ZZX*& shiftpoly, long num){
     delete[] vals;
 }
 
-
-//! Input: Enc(m[1],...m[d] | m[d+1],... )
-//! Output: Enc(m[k+1] ... m[k] | m[k+1+d]...), ciphertext shifted by k
-//! consumed by cBits
-
 void HEmatrix::shiftBycols(Ciphertext& res, Ciphertext& ctxt,  long k , ZZX*& shiftpoly){
     //! ctemp = Enc(m[1],.., m[k],0,,,0 | ....)
     Ciphertext ctemp = scheme.multByPoly(ctxt, shiftpoly[k-1], HEmatpar.cBits);
@@ -580,7 +552,6 @@ void HEmatrix::shiftBycols(Ciphertext& res, Ciphertext& ctxt,  long k , ZZX*& sh
     scheme.addAndEqual(res, ctemp);
 }
 
-//!@ Function: generate polynomials for parallel shifting
 void HEmatrix::genShiftPoly_Parallel(ZZX*& shiftpoly){
     complex<double>** vals   = new complex<double>*[HEmatpar.dim1];
     shiftpoly = new ZZX[HEmatpar.dim1];
@@ -605,8 +576,6 @@ void HEmatrix::genShiftPoly_Parallel(ZZX*& shiftpoly){
     delete[] vals;
 }
 
-
-//!@ Function: parallel shifting
 void HEmatrix::shiftBycols_Parallel(Ciphertext& res, Ciphertext& ctxt, long k, ZZX*& shiftpoly){
     //! ctemp = Enc(m[1],.., m[k],0,,,0 | ....)
     Ciphertext ctemp = scheme.multByPoly(ctxt, shiftpoly[k-1], HEmatpar.cBits);
@@ -686,11 +655,6 @@ void HEmatrix::genMultPoly(ZZX**& Initpoly){
     delete[] fvals2;
     delete[] bvals;
 }
-
-
-//!@ Input: Actxt, Bctxt
-//!@ Output: resA (Actxt0), resB (Bctxt0)
-//! (first generated ctxts for Amat and Bmat using liner transformations of poly)
 
 void HEmatrix::genInitCtxt(Ciphertext& resA, Ciphertext& resB, Ciphertext& Actxt, Ciphertext& Bctxt, ZZX**& poly){
     bool btmp;
@@ -805,7 +769,6 @@ void HEmatrix::genInitCtxt(Ciphertext& resA, Ciphertext& resB, Ciphertext& Actxt
     delete[] BaByctxtB;
 }
 
-//! Output : res = Actxts[0] * Bctxts[0] + ... + Actxts[d-1] * Bctxts[d-1] followed by rescaling procedure
 void HEmatrix::HEmatmul_Hadamard(Ciphertext& res, Ciphertext* Actxts, Ciphertext* Bctxts, long num){
     //! logq: Actxt > Actxts[0] = Actxts[i + 1] + 2*cBits
     //! logq: Bctxt > Bctxts[0] = Bctxt[i + 1]
@@ -868,10 +831,6 @@ void HEmatrix::HEmatmul_Hadamard(Ciphertext& res, Ciphertext* Actxts, Ciphertext
   
 }
 
-
-//!@ Input: Actxt, Bctxt, Initpoly, shiftpoly
-//!@ Output: res
-
 void HEmatrix::HEmatmul(Ciphertext& res, Ciphertext& Actxt, Ciphertext& Bctxt, ZZX**& Initpoly, ZZX*& shiftpoly){
     Ciphertext* Actxts = new Ciphertext[HEmatpar.dim];
     Ciphertext* Bctxts = new Ciphertext[HEmatpar.dim];
@@ -895,8 +854,6 @@ void HEmatrix::HEmatmul(Ciphertext& res, Ciphertext& Actxt, Ciphertext& Bctxt, Z
     delete[] Bctxts;
 }
 
-
-//!@ Function: generate polynomials for parallel matrix multiplication
 void HEmatrix::genMultPoly_Parallel(ZZX**& Initpoly){
     long btmp;
     if((HEmatpar.dim % HEmatpar.sqrdim) == 0){ btmp = false; }    //! all the terms have the same numbers
@@ -963,10 +920,6 @@ void HEmatrix::genMultPoly_Parallel(ZZX**& Initpoly){
     delete[] fvals2;
     delete[] bvals;
 }
-
-
-//!@ Input: Actxt, Bctxt
-//!@ Output: resA, resfB (first generated ctxts for Amat and Bmat using liner transformations of poly)
 
 void HEmatrix::genInitCtxt_Parallel(Ciphertext& resA, Ciphertext& resB, Ciphertext& Actxt, Ciphertext& Bctxt, ZZX**& poly){
     bool btmp;
@@ -1085,11 +1038,6 @@ void HEmatrix::genInitCtxt_Parallel(Ciphertext& resA, Ciphertext& resB, Cipherte
     delete[] BaByctxtB;
 }
 
-
-
-//!@ Input: Actxt, Bctxt, Initpoly, shiftpoly
-//!@ Function: parallel matrix multiplication
-
 void HEmatrix::HEmatmul_Parallel(Ciphertext& res, Ciphertext& Actxt, Ciphertext& Bctxt, ZZX**& Initpoly, ZZX*& shiftpoly){
     Ciphertext* Actxts = new Ciphertext[HEmatpar.dim];
     Ciphertext* Bctxts = new Ciphertext[HEmatpar.dim];
@@ -1113,12 +1061,6 @@ void HEmatrix::HEmatmul_Parallel(Ciphertext& res, Ciphertext& Actxt, Ciphertext&
     delete[] Actxts;
     delete[] Bctxts;
 }
-
-
-//------------------------------------------------------------------
-//!@ Input: Actxt, Bctxt, Initpoly, shiftpoly
-//!@ Output: res 
-//!@ Function: rectangular matrix multiplication
 
 void HEmatrix::HErmatmul(Ciphertext& res, Ciphertext& Actxt, Ciphertext& Bctxt, ZZX**& Initpoly, ZZX*& shiftpoly){
     Ciphertext* Actxts = new Ciphertext[HEmatpar.subdim];
@@ -1151,8 +1093,6 @@ void HEmatrix::HErmatmul(Ciphertext& res, Ciphertext& Actxt, Ciphertext& Bctxt, 
     delete[] Bctxts;
 }
 
-
-//!@ Output: constant polynomials for "Bmat"
 void HEmatrix::genMultBPoly(ZZX*& Initpoly){
     bool btmp;
     if((HEmatpar.dim % HEmatpar.sqrdim) == 0){ btmp = false; }    //! all the terms have the same numbers
@@ -1184,9 +1124,6 @@ void HEmatrix::genMultBPoly(ZZX*& Initpoly){
     delete[] bvals;
 }
 
-
-//!@ Input: mat
-//!@ Output: Actxts (encryptions of our algorithms for Amat)
 void HEmatrix::genInitActxt(Ciphertext*& Actxts, Mat<RR>& mat){
     Mat<RR>* Amat = new Mat<RR>[HEmatpar.dim];
     Actxts = new Ciphertext[HEmatpar.dim];
@@ -1252,7 +1189,6 @@ void HEmatrix::genInitActxt(Ciphertext*& Actxts, Mat<RR>& mat){
     delete[] cmsg;
 }
 
-//!  generate the initial ciphertexts (only for "B")
 void HEmatrix::genInitBctxt(Ciphertext& resB, Ciphertext& Bctxt, ZZX*& poly){
     bool btmp;
     if((HEmatpar.dim % HEmatpar.sqrdim) == 0){
@@ -1330,8 +1266,6 @@ void HEmatrix::genInitBctxt(Ciphertext& resB, Ciphertext& Bctxt, ZZX*& poly){
     delete[] BaByctxtB;
 }
 
-
-//! Output: matrix multiplication when we are given the (pre-processed) fresh ciphertexts of Actxts
 void HEmatrix::HEmatmul_preprocessing(Ciphertext& res, Ciphertext*& Actxts, Ciphertext& Bctxt, ZZX*& Initpoly){
 
     //! 1. Generate the initial ciphertexts
@@ -1363,9 +1297,6 @@ void HEmatrix::HEmatmul_preprocessing(Ciphertext& res, Ciphertext*& Actxts, Ciph
 
     delete[] Bctxts;
 }
-
-//!@ Input: mat[d][r] s.t. r < d
-//!@ Output: Actxts[r]
 
 void HEmatrix::genInitRecActxt(Ciphertext*& Actxts, Mat<RR>& mat){
     // rep_mat: (mat; mat; ... ;mat) square mat
@@ -1448,10 +1379,6 @@ void HEmatrix::genInitRecActxt(Ciphertext*& Actxts, Mat<RR>& mat){
     delete[] cmsg;
 }
 
-
-//!@ Input: Actxts, Bctxt, Initpoly
-//!@ Output: rectangular marix multiplication when we are given the fresh Actxt
-
 void HEmatrix::HErmatmul_preprocessing(Ciphertext& res, Ciphertext*& Actxts, Ciphertext& Bctxt, ZZX*& Initpoly){
     
     //! 1. Generate the initial ciphertexts
@@ -1490,5 +1417,3 @@ void HEmatrix::HErmatmul_preprocessing(Ciphertext& res, Ciphertext*& Actxts, Cip
     
     delete[] Bctxts;
 }
-
-

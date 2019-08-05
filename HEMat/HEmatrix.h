@@ -64,34 +64,117 @@ public:
     //! constructor
     HEmatrix(Scheme& scheme, SecretKey& secretKey, HEMatpar& HEmatpar) : scheme(scheme), secretKey(secretKey), HEmatpar(HEmatpar) {}
     
-    //! encrypt and decrypt
+    /**
+     @param[in] mat, The input matrix
+     @param[in] logp, The scale of messages
+     @param[out] ctxt, The ciphertext encrypting a scaled matrix "(1 << logp) * mat"
+     */
     void encryptRmat(Ciphertext& ctxt, mat_RR& mat, long logp);
+    
+    /**
+     @param[in] ctxt, The input ciphertext encrypting "(1 << logp) * mat"
+     @param[out] mat, The matrix
+     */
     void decryptRmat(mat_RR& mat, Ciphertext& ctxt);
     
+    /**
+     @param[in] mat, The multiple input matrices
+     @param[in] logp, The scale of messages
+     @param[in] nbathcing, The number of multiple matrices in a single ciphertext
+     @param[out] ctxt, The ciphertext encrypting multiple matrices with scale (1 << logp)
+     */
     void encryptParallelRmat(Ciphertext& ctxt, mat_RR*& mat, long logp, long nbatching);
+    
+    /**
+     @param[in] ctxt, The input ciphertext encrypting "(1 << logp) * mat"
+     @param[out] mat, Multiple matrices
+     */
     void decryptParallelRmat(mat_RR*& mat, Ciphertext& ctxt);
 
-    //! optimization: used for linear transformation
+    /**
+     @param[in] vals, The input vector, vals = (vals[0],vals[1],...,vals[d-1])
+     @param[in] dim, The dim of of the input vector
+     @param[in] nrot, The number of steps to rotate by left (positive)
+     @param[out] res, The output vector s.t.
+     res = (vals[nrot], vals[nrot+1],..., vals[d-1]), vals[0], vals[1],...., vals[nrot-1])
+     */
     void msgleftRotate(complex<double>*& res, complex<double>* vals, long dim, long nrot);
+    
+    /**
+     @param[in] vals, The input vector, vals = (vals[0],vals[1],...,vals[d-1])
+     @param[in] dim, The dim of of the input vector
+     @param[in] nrot, The number of steps to rotate by right (positive)
+     @param[out] res, The output vector s.t
+     res = (vals[d-nrot], vals[d-nrot+1],..., vals[d-1]), vals[0], vals[1],...., vals[d-nrot-1])
+     */
     void msgrightRotate(complex<double>*& res, complex<double>* vals, long dim, long nrot);
     
+    /**
+     @param[in] vals, The input vector to rotate
+     @param[in] dim, The dim of of the input vector
+     @param[in] nrot, The number of steps to rotate by left (positive)
+     */
     void msgleftRotateAndEqual(complex<double>*& vals, long dim, long nrot);
+    
+    /**
+     @param[in] vals, The input vector to rotate
+     @param[in] dim, The dim of of the input vector
+     @param[in] nrot, The number of steps to rotate by right (positive)
+     */
     void msgrightRotateAndEqual(complex<double>*& vals, long dim, long nrot);
 
-
-    //! transpose
+    /**
+     @param[out] transpoly, The polynomials needed for transposition
+     */
     void genTransPoly(ZZX*& transpoly);
+    
+    /**
+     @param[in] ctxt, The input ciphertext
+     @param[in] transpoly, The polynomials
+     @param[out] res, The output ciphertext that encrypts the transpose of the corresponding input matrix
+     consumes a constant-multiplication level
+     */
     void transpose(Ciphertext& res, Ciphertext& ctxt, ZZX*& transpoly);
     
+    /**
+     @param[out] transpoly, The polynomials needed for transpositions of multiple matrices
+     */
     void genTransPoly_Parallel(ZZX*& transpoly);
+    
+    /**
+     @param[in] ctxt, The input ciphertext encrypting multiple matrices
+     @param[in] transpoly, The polynomials
+     @param[out] res, The output ciphertext that encrypts the transpose results of the multiple input matrices
+     */
     void transpose_Parallel(Ciphertext& res, Ciphertext& ctxt, ZZX*& transpoly);
     
-    //! shift by k-position columns
+    /**
+     @param[in] num, The number of steps to shift by columns
+     @param[out] shiftpoly, The polynomials needed for column shift by num position
+     num = 0: shift by (d-1)
+     */
     void genShiftPoly(ZZX*& shiftpoly, const long num = 0);
+    
+    /**
+     @param[in] ctxt, The input ciphertext, Enc(m[0],...m[d-1] | m[d],...m[2d-1] | ... )
+     @param[in] k, The number of steps to shift by columns
+     @param[in] shiftpoly, The polynomials
+     @param[out] res, The output ciphertext, Enc(m[k] ... m[k-1] | m[d+k]...m[d+k-1] | ... )
+     consumes a constant-multiplication level
+     */
     void shiftBycols(Ciphertext& res, Ciphertext& ctxt, long k, ZZX*& shiftpoly);
    
-    //! parallel-multiplication
+    /**
+     @param[out] shiftpoly, The polynomials needed for column shift of multiple matrices
+     */
     void genShiftPoly_Parallel(ZZX*& shiftpoly);
+    
+    /**
+     @param[in] ctxt, The input ciphertext
+     @param[in] k, The number of steps to shift by columns
+     @param[in] shiftpoly, The polynomials for parallel shift-by-column operations
+     @param[out] res, The output ciphertext
+     */
     void shiftBycols_Parallel(Ciphertext& res, Ciphertext& ctxt, long k, ZZX*& shiftpoly);
     
     
@@ -99,33 +182,109 @@ public:
     // multiplication
     //-------------------------------------------
     
-    //! generate polynomials for linear transformations of multiplication
+    /**
+     @param[out] Initpoly, The polynomials needed for linear transformations of multiplication
+     */
     void genMultPoly(ZZX**& Initpoly);
-    void genMultPoly_Parallel(ZZX**& Initpoly); //! parallel
-    void genMultBPoly(ZZX*& Initpoly);  //! only for "B"
     
-    //! generate the initial ciphertexts for multiplicaiton
+    /**
+     @param[out] Initpoly, The polynomials needed for linear transformations of parallel multiplications
+     */
+    void genMultPoly_Parallel(ZZX**& Initpoly);
+    
+    /**
+     @param[out] Initpoly, The polynomials needed for linear transformations of multiplication (only for a matrix "B")
+     */
+    void genMultBPoly(ZZX*& Initpoly);
+    
+    /**
+     @param[in] Actxt, The input ciphertext encrypting a matrix A
+     @param[in] Bctxt, The input ciphertext encrypting a matrix B
+     @param[in] Initpoly, The polynomials needed for linear transformations of multiplication
+     @param[out] resA, The output ciphertext encrypting a matrix A0
+     @param[out] resB, The output ciphertext encrypting a matrix B0
+     */
     void genInitCtxt(Ciphertext& resA, Ciphertext& resB, Ciphertext& Actxt, Ciphertext& Bctxt, ZZX**& Initpoly);
+    
+    /**
+     @param[in] Actxt, The input ciphertext encrypting multiple matrices As
+     @param[in] Bctxt, The input ciphertext encrypting multiple matrices Bs
+     @param[in] Initpoly, The polynomials needed for linear transformations of parallel multiplication
+     @param[out] resA, The output ciphertext encrypting multiple matrices A0
+     @param[out] resB, The output ciphertext encrypting multiple matrices B0
+     */
     void genInitCtxt_Parallel(Ciphertext& resA, Ciphertext& resB, Ciphertext& Actxt, Ciphertext& Bctxt, ZZX**& Initpoly);
     
-   
-    void genInitActxt(Ciphertext*& Actxts, Mat<RR>& mat);    //! generate the encryptions of Amat (d ctxts)
-    void genInitBctxt(Ciphertext& resB, Ciphertext& Bctxt, ZZX*& Initpoly); //!  generate the initial ciphertexts (only for "B")
-    void genInitRecActxt(Ciphertext*& Actxts, Mat<RR>& mat);  //! multiplication when encryptions of rectangular Amat are given as fresh
+    /**
+     @param[in] Actxt, The input ciphertext encrypting a matrix A
+     @param[out] resA, The output ciphertexts encrypting matrices Ai's
+     */
+    void genInitActxt(Ciphertext*& Actxts, Mat<RR>& mat);
     
-    //! perform Hadamard multiplication
+    /*
+     @param[in] Bctxt, The input ciphertext encrypting a matrix B
+     @param[in] Initpoly, The polynomials needed for linear transformations of multiplication
+     @param[out] resB, The output ciphertext encrypting a matrix B0
+     */
+    void genInitBctxt(Ciphertext& resB, Ciphertext& Bctxt, ZZX*& Initpoly);
+    
+    /**
+     @param[in] Actxt, The input ciphertext encrypting a wide rectangular matrix A
+     @param[out] resA, The output ciphertexts encrypting matrices Ai's
+     */
+    void genInitRecActxt(Ciphertext*& Actxts, Mat<RR>& mat);
+    
+    /**
+     @param[in] Actxts, The input ciphertexts encrypting Ai's
+     @param[in] Bctxts, The input ciphertexts encrypting Bi's
+     @param[in] num, The number of ciphertexts to multiply
+     @param[out] res, The output ciphertext s.t.
+     Actxts[0] * Bctxts[0] + ... + Actxts[d-1] * Bctxts[d-1] followed by a rescaling operation
+     */
     void HEmatmul_Hadamard(Ciphertext& res, Ciphertext* Actxts, Ciphertext* Bctxts, long num);
     
-    //! performt the matrix multiplication
+    /**
+     @param[in] Actxt, The input ciphertext encrypting a matrix A
+     @param[in] Bctxt, The input ciphertext encrypting a matrix B
+     @param[in] Initpoly, The polynomials needed for linear transformations of multiplication
+     @param[in] shiftpoly, The polynomials for shift-by-column operations
+     @param[out] res, The output ciphertext encrypting a matrix (A * B)
+     */
     void HEmatmul(Ciphertext& res, Ciphertext& Actxt, Ciphertext& Bctxt, ZZX**& Initpoly, ZZX*& shiftpoly);
+    
+    /**
+     @param[in] Actxt, The input ciphertext encrypting multiple matrices As
+     @param[in] Bctxt, The input ciphertext encrypting multiple matrices Bs
+     @param[in] Initpoly, The polynomials needed for linear transformations of parallel multiplication
+     @param[in]  shiftpoly, The polynomials for parallel shift-by-column operations
+     @param[out] res, The output ciphertext encrypting matrices (As * Bs)
+     */
     void HEmatmul_Parallel(Ciphertext& res, Ciphertext& Actxt, Ciphertext& Bctxt, ZZX**& Initpoly, ZZX*& shiftpoly);
-    void HErmatmul(Ciphertext& res, Ciphertext& Actxt, Ciphertext& Bctxt, ZZX**& Initpoly, ZZX*& shiftpoly);    //! rectangular matrix multiplication
     
+    /**
+     @param[in] Actxt, The input ciphertext encrypting a wide rectangular matrix A (an m*n matrix with m<n)
+     @param[in] Bctxt, The input ciphertext encrypting a square matrix B (an n*n matrix)
+     @param[in] Initpoly, The polynomials needed for linear transformations of multiplication
+     @param[in] shiftpoly, The polynomials for shift-by-column operations
+     @param[out] res, The output ciphertext encrypting a matrix (A * B)
+     */
+    void HErmatmul(Ciphertext& res, Ciphertext& Actxt, Ciphertext& Bctxt, ZZX**& Initpoly, ZZX*& shiftpoly);
     
-    //! performt the matrix multiplication where "A" are given as fresh ciphertexts with a form of mat-mult algorithm
+    /**
+     @param[in] Actxts, The input ciphertext encrypting matrices Ai's ("A" are given as fresh ciphertexts)
+     @param[in] Bctxt, The input ciphertext encrypting a matrix B
+     @param[in] Initpoly, The polynomials needed for linear transformations of multiplication
+     @param[out] res, The output ciphertext encrypting a matrix (A * B)
+     */
     void HEmatmul_preprocessing(Ciphertext& res, Ciphertext*& Actxts, Ciphertext& Bctxt, ZZX*& Initpoly);
-    void HErmatmul_preprocessing(Ciphertext& res, Ciphertext*& Actxts, Ciphertext& Bctxt, ZZX*& Initpoly);
     
+    /**
+     @param[in] Actxts, The input ciphertext encrypting matrices Ai's (a rectangular matrix "A" are given as fresh ciphertexts)
+     @param[in] Bctxt, The input ciphertext encrypting a matrix B
+     @param[in] Initpoly, The polynomials needed for linear transformations of multiplication
+     @param[out] res, The output ciphertext encrypting a matrix (A * B)
+     */
+    void HErmatmul_preprocessing(Ciphertext& res, Ciphertext*& Actxts, Ciphertext& Bctxt, ZZX*& Initpoly);
 };
 
 

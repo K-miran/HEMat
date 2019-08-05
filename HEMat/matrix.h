@@ -26,7 +26,8 @@
 
 using namespace std;
 using namespace NTL;
-  
+
+
 void printRvector(vec_RR& vec, const long print_size = 0);
 
 void printRmatrix(Mat<RR>& mat, const long print_size = 0);
