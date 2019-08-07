@@ -133,7 +133,7 @@ int main() {
                 cout << endl << "> Enter dim-1 & dim-2 (dim-1 >= dim-2, e.g., 32 8): ";
                 cin >> dim1;
                 cin >> dim2;
-                cout << "(" << dim1 << "," << dim2 << ") * (" << dim2 << "," << dim2 << ")" << endl;
+                cout << "(" << dim2 << "," << dim1 << ") * (" << dim1 << "," << dim1 << ")" << endl;
                 TestHEmatrix::testRMult(dim1, dim2); //! (d2 * d1) * (d1 * d1)
                 break;
                 
@@ -146,7 +146,7 @@ int main() {
             case 8:
                 cout << endl << "> Enter dim-1 & dim-2 (dim-1 >= dim-2, e.g., 32 8): ";
                 cin >> dim1 >> dim2;
-                cout << "(" << dim1 << "," << dim2 << ") * (" << dim2 << "," << dim2 << ")" << endl;
+                cout << "(" << dim2 << "," << dim1 << ") * (" << dim1 << "," << dim1 << ")" << endl;
                 TestHEmatrix::testRMult_preprocessing(dim1, dim2); //! (d1 * d2) * (d2 * d2)
                 break;
                 
