@@ -1037,17 +1037,7 @@ void TestHEmatrix::testRMult_preprocessing(long nrows, long subdim) {
             Bmat[i][j]= to_RR((((i*ncols + j )%3)/10.0));
         }
     }
-    
-    // replicate
-    Mat<RR> rAmat1;
-    rAmat1.SetDims(nrows, ncols);
-    for(long i = 0; i < nrows/subdim; ++i){
-        for(long j = 0; j < subdim; ++j){
-            for(long k = 0; k< ncols; k++){
-                rAmat1[i*subdim + j][k] = rAmat[j][k];
-            }
-        }
-    }
+
     
     /*---------------------------------------*/
     //  Encryption
@@ -1055,7 +1045,7 @@ void TestHEmatrix::testRMult_preprocessing(long nrows, long subdim) {
     
     auto start= chrono::steady_clock::now();
     Ciphertext* Actxts;
-    HEmatrix.genInitRecActxt(Actxts, rAmat1);
+    HEmatrix.genInitRecActxt(Actxts, rAmat);
     
     Ciphertext Bctxt;
     HEmatrix.encryptRmat(Bctxt, Bmat, HEmatpar.pBits);
